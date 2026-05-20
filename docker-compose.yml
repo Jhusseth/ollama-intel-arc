@@ -6,7 +6,7 @@ services:
     devices:
       - /dev/dri:/dev/dri
     volumes:
-      - ollama-volume:/root/.ollama
+      - ~/.ollama:/root/.ollama
     ports:
       - 11434:11434
     environment:
