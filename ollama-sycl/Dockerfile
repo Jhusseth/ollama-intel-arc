@@ -1,9 +1,9 @@
-ARG OLLAMA_VERSION=0.18.1
+ARG OLLAMA_VERSION=0.22.0
 ARG GGML_COMMIT=15bff84bf56651d6f991f166a2bf0f362996f7f9
-ARG COMPUTE_RUNTIME_VERSION=26.09.37435.1
-ARG LEVEL_ZERO_VERSION=1.28.0
-ARG IGC_VERSION=2.30.1
-ARG IGC_BUILD=20950
+ARG COMPUTE_RUNTIME_VERSION=26.14.37833.4
+ARG LEVEL_ZERO_VERSION=1.28.2
+ARG IGC_VERSION=2.32.7
+ARG IGC_BUILD=21184
 ARG GMM_VERSION=22.9.0
 
 # =============================================================================
@@ -40,6 +40,7 @@ RUN cmake -B build \
   -DCMAKE_CXX_COMPILER=icpx \
   -DGGML_SYCL=ON \
   -DGGML_SYCL_TARGET=INTEL \
+  -DGGML_SYCL_F16=ON \
   -DOLLAMA_RUNNER_DIR=sycl && \
   cmake --build build --parallel $(nproc) --target ggml-sycl
 
@@ -69,8 +70,9 @@ RUN mkdir -p /sycl-runner && \
   cp /opt/intel/oneapi/compiler/latest/lib/libiomp5.so /sycl-runner/ && \
   # Level-zero PI plugin (legacy, may not exist)
   cp /opt/intel/oneapi/compiler/latest/lib/libpi_level_zero.so* /sycl-runner/ 2>/dev/null; \
-  # SYCL SPIR-V fallback kernels (needed for bfloat16, complex math, etc.)
+  # SYCL SPIR-V kernels (needed for bfloat16, complex math, etc.)
   cp /opt/intel/oneapi/compiler/latest/lib/libsycl-fallback*.spv /sycl-runner/ && \
+  cp /opt/intel/oneapi/compiler/latest/lib/libsycl-native*.spv /sycl-runner/ && \
   # Strip debug symbols to reduce size
   strip --strip-unneeded /sycl-runner/*.so* 2>/dev/null; true
 
